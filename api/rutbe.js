@@ -46,6 +46,9 @@ export default function handler(req, res) {
   }
 
   const { kullanici, rank } = req.body;
+  const rankName = Object.keys(ranks).find(
+  r => r.toLowerCase() === rank.toLowerCase()
+);
 console.log(req.body);
 
   res.json({
