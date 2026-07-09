@@ -6,15 +6,14 @@ const userResponse = await fetch(
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      usernames: [kullanici],
-      excludeBannedUsers: true
+      usernames: [kullanici]
     })
   }
 );
 
 const userData = await userResponse.json();
 
-res.json({
+res.status(200).json({
   kullanici: kullanici,
-  robloxID: userData.data?.[0]?.id
+  robloxCevap: userData
 });
