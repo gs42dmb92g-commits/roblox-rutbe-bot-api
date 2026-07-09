@@ -1,4 +1,5 @@
 const groupId = process.env.ROBLOX_GROUP_ID;
+const botUsername = process.env.ROBLOX_USERNAME;
 const ranks = {
   "Holder": 255,
   "Grup Sahibi": 200,
@@ -50,7 +51,8 @@ export default function handler(req, res) {
   kullanici: kullanici,
   rankAdi: rank,
   rankID: ranks[rank],
-  grupID: groupId
+  grupID: groupId,
+  bot: botUsername
 });
   
     
