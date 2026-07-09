@@ -68,6 +68,32 @@ export default async function handler(req, res) {
 
     const userData = await userResponse.json();
 
+const userId = userData.data?.[0]?.id;
+
+if (!userId) {
+  return res.status(404).json({
+    hata: "Roblox kullanıcısı bulunamadı"
+  });
+}
+
+const rankId = ranks[rank];
+
+const changeRank = await fetch(
+  `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
+  {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ROBLOX_API_KEY
+    },
+    body: JSON.stringify({
+      roleId: rankId
+    })
+  }
+);
+
+const changeResult = await changeRank.json();
+
     res.status(200).json({
       kullanici: kullanici,
       rankAdi: rank,
