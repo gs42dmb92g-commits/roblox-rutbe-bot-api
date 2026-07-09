@@ -94,13 +94,14 @@ const changeRank = await fetch(
 
 const changeResult = await changeRank.json();
 
-    res.status(200).json({
-      kullanici: kullanici,
-      rankAdi: rank,
-      rankID: ranks[rank],
-      robloxCevap: userData
-    });
-
+res.status(200).json({
+  kullanici: kullanici,
+  robloxID: userId,
+  rankAdi: rank,
+  rankID: rankId,
+  sonuc: changeResult
+});
+   
   } catch (error) {
     res.status(500).json({
       hata: error.message
