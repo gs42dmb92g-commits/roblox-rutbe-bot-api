@@ -47,8 +47,12 @@ export default function handler(req, res) {
   const { kullanici, rank } = req.body;
 
   res.json({
-    kullanici: kullanici,
-    rankAdi: rank,
-    rankID: ranks[rank]
-  });
-}
+  kullanici: kullanici,
+  rankAdi: rank,
+  rankID: ranks[rank],
+  grupID: groupId
+});
+  
+    
+    
+
