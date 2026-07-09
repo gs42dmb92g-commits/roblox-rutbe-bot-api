@@ -1,21 +1,20 @@
-const ranks = {
-  "Albay": 16,
-  "Yarbay": 15,
-  "Binbaşı": 14
-};
-
-export default function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      hata: "Sadece POST kullanılabilir"
-    });
+const userResponse = await fetch(
+  "https://users.roblox.com/v1/usernames/users",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      usernames: [kullanici],
+      excludeBannedUsers: true
+    })
   }
+);
 
-  const { kullanici, rank } = req.body;
+const userData = await userResponse.json();
 
-  res.status(200).json({
-    kullanici: kullanici,
-    rankAdi: rank,
-    rankID: ranks[rank]
-  });
-}
+res.json({
+  kullanici: kullanici,
+  robloxID: userData.data?.[0]?.id
+});
