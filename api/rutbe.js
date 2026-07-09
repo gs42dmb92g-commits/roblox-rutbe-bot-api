@@ -51,14 +51,10 @@ export default function handler(req, res) {
 );
 console.log(req.body);
 
-  res.json({
+res.json({
   kullanici: kullanici,
-  rankAdi: rank,
-  rankID: ranks[rank],
+  rankAdi: rankName,
+  rankID: ranks[rankName],
   grupID: groupId,
   bot: botUsername
 });
-  
-    
-    
-
