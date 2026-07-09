@@ -1,3 +1,4 @@
+const groupId = process.env.ROBLOX_GROUP_ID;
 const ranks = {
   "Holder": 255,
   "Grup Sahibi": 200,
