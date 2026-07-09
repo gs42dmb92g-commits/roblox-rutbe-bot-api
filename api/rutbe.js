@@ -7,13 +7,9 @@ export default function handler(req, res) {
 
     const { kullanici, rank } = req.body;
 
-    if (!kullanici || !rank) {
-        return res.status(400).json({
-            hata: "Kullanıcı ve rank gerekli"
-        });
-    }
-
     res.status(200).json({
-        mesaj: `${kullanici} kullanıcısına ${rank} rank isteği alındı`
+        durum: "başarılı",
+        kullanici: kullanici,
+        rank: rank
     });
 }
