@@ -46,6 +46,7 @@ export default function handler(req, res) {
   }
 
   const { kullanici, rank } = req.body;
+console.log(req.body);
 
   res.json({
   kullanici: kullanici,
