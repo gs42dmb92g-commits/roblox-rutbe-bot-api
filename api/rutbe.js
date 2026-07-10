@@ -1,6 +1,11 @@
 export default async function handler(req, res) {
-
   try {
+
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        hata: "Sadece POST kullanılabilir"
+      });
+    }
 
     const { kullanici, roleId } = req.body;
 
@@ -11,7 +16,7 @@ export default async function handler(req, res) {
     }
 
 
-    // Kullanıcı ID bul
+    // Roblox kullanıcı ID bulma
 
     const userResponse = await fetch(
       "https://users.roblox.com/v1/usernames/users",
@@ -28,27 +33,53 @@ export default async function handler(req, res) {
 
     const userData = await userResponse.json();
 
+    if (!userData.data || userData.data.length === 0) {
+      return res.status(404).json({
+        hata: "Kullanıcı bulunamadı"
+      });
+    }
+
     const userId = userData.data[0].id;
 
 
+    // Grup üyeliğini bul
 
-    // Üyelikleri çek
+    let members = [];
+    let pageToken = null;
 
-    const membersResponse = await fetch(
-      `https://apis.roblox.com/cloud/v2/groups/${process.env.ROBLOX_GROUP_ID}/memberships?pageSize=100`,
-      {
-        headers: {
-          "x-api-key": process.env.ROBLOX_API_KEY
-        }
+    do {
+
+      let url =
+        `https://apis.roblox.com/cloud/v2/groups/${process.env.ROBLOX_GROUP_ID}/memberships?pageSize=100`;
+
+      if (pageToken) {
+        url += `&pageToken=${pageToken}`;
       }
-    );
 
 
-    const members = await membersResponse.json();
+      const membersResponse = await fetch(
+        url,
+        {
+          headers: {
+            "x-api-key": process.env.ROBLOX_API_KEY
+          }
+        }
+      );
 
 
-    const member = members.groupMemberships.find(
-      x => x.user === `users/${userId}`
+      const data = await membersResponse.json();
+
+      members.push(...(data.groupMemberships || []));
+
+      pageToken = data.nextPageToken || null;
+
+
+    } while (pageToken);
+
+
+
+    const member = members.find(
+      m => m.user === `users/${userId}`
     );
 
 
@@ -59,13 +90,11 @@ export default async function handler(req, res) {
     }
 
 
-    const membershipPath = member.path;
-
 
     // Rol değiştir
 
-    const change = await fetch(
-      `https://apis.roblox.com/cloud/v2/${membershipPath}`,
+    const changeResponse = await fetch(
+      `https://apis.roblox.com/cloud/v2/${member.path}`,
       {
         method: "PATCH",
         headers: {
@@ -79,13 +108,14 @@ export default async function handler(req, res) {
     );
 
 
-    const result = await change.json();
+    const result = await changeResponse.json();
 
 
     return res.status(200).json({
       basarili: true,
       kullanici,
-      userId,
+      robloxID: userId,
+      roleId,
       sonuc: result
     });
 
@@ -97,5 +127,4 @@ export default async function handler(req, res) {
     });
 
   }
-
 }
