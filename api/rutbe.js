@@ -27,7 +27,19 @@ const ranks = {
       hata: "Sadece POST kullanılabilir"
     });
   }
+export default async function handler(req, res) {
 
+try {
+
+  // bütün mevcut kodların burada
+
+} catch (err) {
+  return res.status(500).json({
+    hata: err.message
+  });
+}
+
+}
   const { kullanici, rank } = req.body;
 
 
