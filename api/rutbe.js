@@ -8,7 +8,28 @@ export default async function handler(req, res) {
 
   const { kullanici, rank } = req.body;
 
-  // Burada kullanıcı ID bulma kodun olacak
+ const userResponse = await fetch(
+  `https://users.roblox.com/v1/usernames/users`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      usernames: [kullanici]
+    })
+  }
+);
+
+const userData = await userResponse.json();
+
+if (!userData.data || userData.data.length === 0) {
+  return res.status(404).json({
+    hata: "Roblox kullanıcısı bulunamadı"
+  });
+}
+
+const userId = userData.data[0].id;
 
   const rankId = ranks[rank];
 
