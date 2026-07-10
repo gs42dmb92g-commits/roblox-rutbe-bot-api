@@ -2,42 +2,31 @@ export default async function handler(req, res) {
 
   try {
 
-    const { kullanici } = req.body;
+    const { userId } = req.body;
 
-    if (!kullanici) {
+    if (!userId) {
       return res.status(400).json({
-        hata: "kullanici gerekli"
+        hata: "userId gerekli"
       });
     }
 
 
-    const userResponse = await fetch(
-      "https://users.roblox.com/v1/usernames/users",
+    const response = await fetch(
+      `https://apis.roblox.com/cloud/v2/groups/${process.env.ROBLOX_GROUP_ID}/memberships?filter=user.id%3D%22${userId}%22`,
       {
-        method: "POST",
         headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          usernames: [kullanici]
-        })
+          "x-api-key": process.env.ROBLOX_API_KEY
+        }
       }
     );
 
 
-    const userData = await userResponse.json();
-
-
-    if (!userData.data || userData.data.length === 0) {
-      return res.status(404).json({
-        hata: "Kullanıcı bulunamadı"
-      });
-    }
+    const text = await response.text();
 
 
     return res.status(200).json({
-      kullanici: kullanici,
-      robloxID: userData.data[0].id
+      kod: response.status,
+      cevap: text
     });
 
 
