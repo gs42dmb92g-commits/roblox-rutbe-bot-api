@@ -31,7 +31,21 @@ const ranks = {
   const { kullanici, rank } = req.body;
 
 
+const changeRank = await fetch(
+  `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
+  {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ROBLOX_API_KEY
+    },
+    body: JSON.stringify({
+      roleId: rankId
+    })
+  }
+);
 
+const changeResult = await changeRank.json();
   res.status(200).json({
     kullanici,
     rankAdi: rank,
