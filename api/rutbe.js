@@ -44,5 +44,6 @@ res.status(200).json({
   rankAdi: rank,
   rankID: rankId,
   sonuc: changeResult
-});
-
+{
+  "type": "module"
+}
