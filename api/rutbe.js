@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-
   try {
 
     const response = await fetch(
@@ -11,13 +10,12 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const text = await response.text();
 
     return res.status(200).json({
       kod: response.status,
-      veri: data
+      cevap: text
     });
-
 
   } catch (err) {
 
@@ -26,5 +24,4 @@ export default async function handler(req, res) {
     });
 
   }
-
 }
