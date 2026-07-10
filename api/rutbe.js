@@ -59,6 +59,15 @@ export default async function handler(req, res) {
 
 
     const membershipData = await memberships.json();
+    
+  
+    console.log(membershipData);
+
+return res.status(200).json({
+  test: "membership geldi",
+  veri: membershipData
+});
+    
 return res.status(200).json(membershipData);  const member = membershipData.groupMemberships?.find(
       x => x.user?.id == userId
     );
