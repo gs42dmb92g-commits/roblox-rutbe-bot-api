@@ -1,67 +1,137 @@
 export default async function handler(req, res) {
-const ranks = {
-  "Yardımcı Grup Sahibi": 60,
-  "Ordu Yönetimi": 50,
-  "Geliştirici Ekibi": 40,
-  "ÖZEL MİSAFİR": 39,
-  "Yönetim Kurulu Başkanı": 29,
-  "Yönetim Kurulu": 28,
-  "Albay": 16,
-  "Yarbay": 15,
-  "Binbaşı": 14,
-  "Yüzbaşı": 13,
-  "Teğmen": 12,
-  "Asteğmen": 11,
-  "Astsubay Kıdemli BaşÇavuş": 10,
-  "Astsubay BaşÇavuş": 9,
-  "Astsubay Kıdemli Çavuş": 8,
-  "Astsubay Çavuş": 7,
-  "Uzman Çavuş": 6,
-  "Uzman Onbaşı": 5,
-  "Çavuş": 4,
-  "Onbaşı": 3,
-  "Acemi Er": 2
-};
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      hata: "Sadece POST kullanılabilir"
+
+  try {
+
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        hata: "Sadece POST kullanılabilir"
+      });
+    }
+
+    const ranks = {
+      "Holder": 255,
+      "Grup Sahibi": 200,
+      "BaşKomutan": 80,
+      "Yardımcı Grup Sahibi": 60,
+      "Ordu Yönetimi": 50,
+      "Geliştirici Ekibi": 40,
+      "ÖZEL MİSAFİR": 39,
+      "Yönetim Kurulu Başkanı": 29,
+      "Yönetim Kurulu": 28,
+      "Yüksek Askeri Şûra": 27,
+      "Genelkurmay Başkanı": 26,
+      "Genelkurmay": 25,
+      "Lider": 24,
+      "Lider Yardımcısı": 23,
+      "Ankara Heyeti": 22,
+      "Büyük Konsey": 21,
+      "OF-9 / Orgeneral": 20,
+      "OF-8 / Korgeneral": 19,
+      "OF-7 / Tümgeneral": 18,
+      "OF-6 / Tuğgeneral": 17,
+      "Albay": 16,
+      "Yarbay": 15,
+      "Binbaşı": 14,
+      "Yüzbaşı": 13,
+      "OF-1 (B) / Teğmen": 12,
+      "OF-1 (A) / Asteğmen": 11,
+      "OR-9 / Astsubay Kıdemli BaşÇavuş": 10,
+      "OR-8 / Astsubay BaşÇavuş": 9,
+      "OR-7 / Astsubay Kıdemli Çavuş": 8,
+      "OR-6 / Astsubay Çavuş": 7,
+      "OR-5 / Uzman Çavuş": 6,
+      "OR-4 / Uzman Onbaşı": 5,
+      "OR-3 / Çavuş": 4,
+      "OR-2 / Onbaşı": 3,
+      "OR-1 / Acemi Er": 2
+    };
+
+
+    const { kullanici, rank } = req.body;
+
+
+    if (!kullanici || !rank) {
+      return res.status(400).json({
+        hata: "Kullanıcı ve rütbe gerekli"
+      });
+    }
+
+
+    const rankId = ranks[rank];
+
+
+    if (!rankId) {
+      return res.status(400).json({
+        hata: "Bilinmeyen rütbe"
+      });
+    }
+
+
+    // Roblox kullanıcı ID bulma
+
+    const userResponse = await fetch(
+      "https://users.roblox.com/v1/usernames/users",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          usernames: [kullanici]
+        })
+      }
+    );
+
+
+    const userData = await userResponse.json();
+
+
+    if (!userData.data || userData.data.length === 0) {
+      return res.status(404).json({
+        hata: "Roblox kullanıcısı bulunamadı"
+      });
+    }
+
+
+    const userId = userData.data[0].id;
+
+
+
+    // Rütbe değiştirme
+
+    const changeRank = await fetch(
+      `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.ROBLOX_API_KEY
+        },
+        body: JSON.stringify({
+          roleId: rankId
+        })
+      }
+    );
+
+
+    const result = await changeRank.json();
+
+
+    return res.status(200).json({
+      kullanici: kullanici,
+      robloxID: userId,
+      rankAdi: rank,
+      rankID: rankId,
+      sonuc: result
     });
+
+
+  } catch (err) {
+
+    return res.status(500).json({
+      hata: err.message
+    });
+
   }
-export default async function handler(req, res) {
 
-try {
-
-  // bütün mevcut kodların burada
-
-} catch (err) {
-  return res.status(500).json({
-    hata: err.message
-  });
-}
-
-}
-  const { kullanici, rank } = req.body;
-
-
-const changeRank = await fetch(
-  `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
-  {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ROBLOX_API_KEY
-    },
-    body: JSON.stringify({
-      roleId: rankId
-    })
-  }
-);
-
-const changeResult = await changeRank.json();
-  res.status(200).json({
-    kullanici,
-    rankAdi: rank,
-    rankID: rankId,
-    sonuc: changeResult
-  });
 }
