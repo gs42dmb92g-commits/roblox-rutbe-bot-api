@@ -1,32 +1,24 @@
-const rankId = ranks[rank];
+export default async function handler(req, res) {
 
-const csrfResponse = await fetch(
-  `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
-  {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.ROBLOX_API_KEY
-    },
-    body: JSON.stringify({
-      roleId: rankId
-    })
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      hata: "Sadece POST kullanılabilir"
+    });
   }
-);
 
-const csrfToken = csrfResponse.headers.get("x-csrf-token");
+  const { kullanici, rank } = req.body;
 
-let changeResult;
+  // Burada kullanıcı ID bulma kodun olacak
 
-if (csrfToken) {
-  const changeRank = await fetch(
+  const rankId = ranks[rank];
+
+  const csrfResponse = await fetch(
     `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.ROBLOX_API_KEY,
-        "x-csrf-token": csrfToken
+        "x-api-key": process.env.ROBLOX_API_KEY
       },
       body: JSON.stringify({
         roleId: rankId
@@ -34,16 +26,35 @@ if (csrfToken) {
     }
   );
 
-  changeResult = await changeRank.json();
-} else {
-  changeResult = await csrfResponse.json();
-}
-res.status(200).json({
-  kullanici: kullanici,
-  robloxID: userId,
-  rankAdi: rank,
-  rankID: rankId,
-  sonuc: changeResult
-{
-  "type": "module"
+  const csrfToken = csrfResponse.headers.get("x-csrf-token");
+
+  let changeResult;
+
+  if (csrfToken) {
+    const changeRank = await fetch(
+      `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.ROBLOX_API_KEY,
+          "x-csrf-token": csrfToken
+        },
+        body: JSON.stringify({
+          roleId: rankId
+        })
+      }
+    );
+
+    changeResult = await changeRank.json();
+  } else {
+    changeResult = await csrfResponse.json();
+  }
+
+  res.status(200).json({
+    kullanici,
+    rankAdi: rank,
+    rankID: rankId,
+    sonuc: changeResult
+  });
 }
