@@ -1,4 +1,11 @@
 export default async function handler(req, res) {
+
+  const controller = new AbortController();
+
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, 5000);
+
   try {
 
     const response = await fetch(
@@ -6,22 +13,31 @@ export default async function handler(req, res) {
       {
         headers: {
           "x-api-key": process.env.ROBLOX_API_KEY
-        }
+        },
+        signal: controller.signal
       }
     );
+
+    clearTimeout(timer);
 
     const text = await response.text();
 
     return res.status(200).json({
-      status: response.status,
-      cevap: text.substring(0, 3000)
+      durum: "cevap geldi",
+      kod: response.status,
+      veri: text
     });
+
 
   } catch (err) {
 
+    clearTimeout(timer);
+
     return res.status(500).json({
-      hata: err.message
+      hata: err.name,
+      mesaj: err.message
     });
 
   }
+
 }
