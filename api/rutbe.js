@@ -62,12 +62,12 @@ export default async function handler(req, res) {
 
     if (!rankId) {
       return res.status(400).json({
-        hata: "Bilinmeyen rütbe"
+        hata: "Rütbe bulunamadı"
       });
     }
 
 
-    // Roblox kullanıcı ID bulma
+    // Roblox kullanıcı ID bul
 
     const userResponse = await fetch(
       "https://users.roblox.com/v1/usernames/users",
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
 
     if (!userData.data || userData.data.length === 0) {
       return res.status(404).json({
-        hata: "Roblox kullanıcısı bulunamadı"
+        hata: "Kullanıcı bulunamadı"
       });
     }
 
@@ -97,9 +97,9 @@ export default async function handler(req, res) {
 
 
 
-    // Rütbe değiştirme
+    // CSRF TOKEN AL
 
-    const changeRank = await fetch(
+    const csrfResponse = await fetch(
       `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
       {
         method: "PATCH",
@@ -114,11 +114,43 @@ export default async function handler(req, res) {
     );
 
 
+    const csrfToken = csrfResponse.headers.get("x-csrf-token");
+
+
+    if (!csrfToken) {
+      const hata = await csrfResponse.json();
+
+      return res.status(400).json({
+        hata: "CSRF alınamadı",
+        detay: hata
+      });
+    }
+
+
+
+    // RÜTBE DEĞİŞTİR
+
+    const changeRank = await fetch(
+      `https://groups.roblox.com/v1/groups/${process.env.ROBLOX_GROUP_ID}/users/${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.ROBLOX_API_KEY,
+          "x-csrf-token": csrfToken
+        },
+        body: JSON.stringify({
+          roleId: rankId
+        })
+      }
+    );
+
+
     const result = await changeRank.json();
 
 
     return res.status(200).json({
-      kullanici: kullanici,
+      kullanici,
       robloxID: userId,
       rankAdi: rank,
       rankID: rankId,
