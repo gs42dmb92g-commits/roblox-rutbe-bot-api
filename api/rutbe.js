@@ -1,1 +1,5 @@
-console.log("YENI KOD CALISIYOR");
+export default async function handler(req, res) {
+  return res.status(200).json({
+    test: "YENI KOD CALISIYOR"
+  });
+}
